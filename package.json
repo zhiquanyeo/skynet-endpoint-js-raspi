@@ -1,0 +1,9 @@
+{
+    "name": "skynet-endpoint-js-raspi",
+    "version": "0.0.1",
+    "description": "Skynet Endpoint for RaspberryPI and NodeJS",
+    "dependencies": {
+        "express": "^4.13.3",
+        "mqtt": "^1.6.2"
+    }
+}
