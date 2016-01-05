@@ -2,8 +2,9 @@
 // An interface to the Explorer HAT
 
 var raspi = require('raspi');
-var gpio = require('raspi-gpio');
+var GPIO = require('raspi-gpio');
 var I2C = require('raspi-i2c').I2C;
+var PWM = require('raspi-pwm').PWM;
 
 var ADC = require('ads1015');
 var cap1208 = require('cap1208');
@@ -121,11 +122,107 @@ function CapTouchInput(capButtons, channel, alias) {
 	};
 }
 
+// For analog, provide the following:
+// getValue()
+// onChange(handler, throttling)
+var d_analogHandlers = [];
+function analogGetValue(ch) {
+	return d_state.analog[ch];
+}
+
+function onAnalogChange(handler, throttle) {
+	d_analogHandlers.push({
+		callback: handler,
+		throttle: throttle || 0,
+		lastPublished: 0
+	});
+}
+
+
+// MOTOR OBJECT
+function Motor(pin_f, pin_b) {
+	var d_invert = false;
+	var d_pinForward = pin_f;
+	var d_pinBackward = pin_b;
+	var d_speed = 0;
+
+	var pwmFwd = new PWM(d_pinForward);
+	var pwmBack = new PWM(d_pinBackward);
+
+	this.invert = function() {
+		d_invert = !d_invert;
+		d_speed = -d_speed;
+		this.speed(d_speed);
+		return d_invert;
+	};
+
+	this.forwards = function(speed) {
+		if (speed > 100) speed = 100;
+		if (speed < 0)  speed = 0;
+
+		if (d_invert) {
+			this.setSpeed(-speed);
+		}
+		else {
+			this.setSpeed(speed);
+		}
+	};
+
+	this.backwards = function(speed) {
+		if (speed > 100) speed = 100;
+		if (speed < 0)  speed = 0;
+
+		if (d_invert) {
+			this.setSpeed(speed);
+		}
+		else {
+			this.setSpeed(-speed);
+		}
+	};
+
+	this.speed = function(speed) {
+		if (speed > 100) speed = 100;
+		if (speed < -100) speed = -100;
+
+		d_speed = speed;
+
+		// we need to convert to 0 - 1024
+		var writeVal = Math.round(Math.abs(speed) / 100.0 * 1024);
+		if (speed > 0) {
+			d_pinBackward.write(0);
+			d_pinForward.write(writeVal);
+		}
+		else if (speed < 0) {
+			d_pinBackward.write(writeVal);
+			d_pinForward.write(0);
+		}
+		else {
+			d_pinForward.write(0);
+			d_pinBackward.write(0);
+		}
+
+		return speed;
+	};
+
+	this.stop = function() {
+		this.speed(0);
+	}
+
+}
+
+// Array of analog inputs
+var d_analogInputs = {};
+
 raspi.init(function () {
 	var i2c = new I2C();
 
 	// Start getting analog values
 	ADC.startSampling(i2c);
+	d_analogInputs['one'] = new AnalogInput(ADC, 3);
+	d_analogInputs['two'] = new AnalogInput(ADC, 2);
+	d_analogInputs['three'] = new AnalogInput(ADC, 1);
+	d_analogInputs['four'] = new AnalogInput(ADC, 0);
+
 	var capButtons = new cap1208(i2c);
 
 
