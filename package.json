@@ -1,9 +1,17 @@
 {
-    "name": "skynet-endpoint-js-raspi",
-    "version": "0.0.1",
-    "description": "Skynet Endpoint for RaspberryPI and NodeJS",
-    "dependencies": {
-        "express": "^4.13.3",
-        "mqtt": "^1.6.2"
-    }
+  "name": "skynet-endpoint-js-raspi",
+  "version": "0.0.1",
+  "description": "Skynet Endpoint for RaspberryPI and NodeJS",
+  "dependencies": {
+    "express": "^4.13.3",
+    "mqtt": "^1.6.3",
+    "pi-blaster.js": "^0.1.1",
+    "promise": "^7.1.1",
+    "raspi": "^2.0.0",
+    "raspi-board": "^2.3.0",
+    "raspi-gpio": "^2.1.0",
+    "raspi-i2c": "^2.2.0",
+    "raspi-led": "^1.2.0",
+    "raspi-pwm": "^2.1.0"
+  }
 }

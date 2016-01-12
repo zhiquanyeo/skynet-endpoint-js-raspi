@@ -9,28 +9,28 @@ var ADC = require('./ads1015');
 var CAP1208 = require('./cap1xxx');
 
 // Onboard LEDs above 1, 2, 3, 4
-var LED1 = 4;
-var LED2 = 17;
-var LED3 = 27;
-var LED4 = 5;
+var LED1 = 7; // BCM - 4
+var LED2 = 0; // BCM - 17;
+var LED3 = 2; // BCM - 27;
+var LED4 = 21; // BCM - 5;
 
 // Outputs via ULN2003A
-var OUT1 = 6;
-var OUT2 = 12;
-var OUT3 = 13;
-var OUT4 = 16;
+var OUT1 = 22; // BCM - 6;
+var OUT2 = 26; // BCM - 12;
+var OUT3 = 23; // BCM - 13;
+var OUT4 = 27; // BCM - 16;
 
 // 5v Tolerant Inputs
-var IN1 = 23;
-var IN2 = 22;
-var IN3 = 24;
-var IN4 = 25;
+var IN1 = 4; // BCM - 23;
+var IN2 = 2; // BCM - 22;
+var IN3 = 5; // BCM - 24;
+var IN4 = 6; // BCM - 25;
 
 // Motor, via DRV8833PWP Dual H-Bridge
-var M1B = 19;
-var M1F = 20;
-var M2B = 21;
-var M2F = 26;
+var M1B = 24; // BCM - 19;
+var M1F = 28; // BCM - 20;
+var M2B = 29; // BCM - 21;
+var M2F = 25; // BCM - 26;
 
 // Number of times to update
 // pulsing LEDs per second
@@ -193,7 +193,7 @@ function Motor(pinFwd, pinBack) {
 
 function Input(pin) {
     var d_pin = pin;
-    var d_pinImpl = new gpio.DigitalInput(pin);
+    var d_pinImpl = new GPIO.DigitalInput(pin);
 
     var d_handlePressed = null;
     var d_handleReleased = null;
@@ -209,7 +209,7 @@ function Input(pin) {
     var d_pollToken = null;
 
     function read() {
-        return d_pinImpl.read() === gpio.HIGH;
+        return d_pinImpl.read() === GPIO.HIGH;
     }
 
     function hasChanged() {
@@ -299,7 +299,7 @@ function Input(pin) {
 
 function Output(pin) {
     var d_pin = pin;
-    var d_pinImpl = new gpio.DigitalOutput(pin);
+    var d_pinImpl = new GPIO.DigitalOutput(pin);
 
     var d_pulser = new Pulse(this, 0, 0, 0, 0);
     var d_blinking = false;
@@ -486,6 +486,7 @@ RASPI.init(function () {
     var i2c = new I2C();
     d_adc = new ADC(i2c);
     d_cap1208 = new CAP1208(i2c, GPIO);
+	d_cap1208.initialize();
 
     settings = {
         touch: CapTouchSettings
@@ -513,19 +514,19 @@ RASPI.init(function () {
     };
 
     touch = {
-        one:    new CapTouchInput(4, 1),
-        two:    new CapTouchInput(5, 2),
-        three:  new CapTouchInput(6, 3),
-        four:   new CapTouchInput(7, 4),
-        five:   new CapTouchInput(0, 5),
-        six:    new CapTouchInput(1, 6),
-        seven:  new CapTouchInput(2, 7),
-        eight:  new CapTouchInput(3, 8)
+        one:    new CapTouchInput(d_cap1208, 4, 1),
+        two:    new CapTouchInput(d_cap1208, 5, 2),
+        three:  new CapTouchInput(d_cap1208, 6, 3),
+        four:   new CapTouchInput(d_cap1208, 7, 4),
+        five:   new CapTouchInput(d_cap1208, 0, 5),
+        six:    new CapTouchInput(d_cap1208, 1, 6),
+        seven:  new CapTouchInput(d_cap1208, 2, 7),
+        eight:  new CapTouchInput(d_cap1208, 3, 8)
     };
 
     motor = {
-        one:    new Motor(M1F, M1B),
-        two:    new Motor(M2F, M2B)
+        //one:    new Motor(M1F, M1B),
+        //two:    new Motor(M2F, M2B)
     };
 
     analog = {
@@ -543,13 +544,13 @@ var EXPLORER_HAT = {
     isReady: function() {
         return d_isReady;
     },
-    settings: settings,
-    light: light,
-    output: output,
-    input: input,
-    touch: touch,
-    motor: motor,
-    analog: analog
+    settings: function() { return settings; },
+    light: function() { return light; },
+    output: function() { return output; },
+    input: function() { return input; },
+    touch: function() { return touch; },
+    motor: function() { return motor; },
+    analog: function() { return analog; }
 };
 
 

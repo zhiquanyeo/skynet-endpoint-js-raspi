@@ -204,7 +204,7 @@ function CAP1XXX(i2c, gpio) {
     var d_lastInputStatus = [];
     var d_inputStatus = [];
     var d_inputDelta = [];
-    var d_inputPresset = [];
+    var d_inputPressed = [];
 
     var d_repeatEnabled = 0x00;
     var d_releaseEnabled = 0xFF;
@@ -380,11 +380,13 @@ function CAP1XXX(i2c, gpio) {
             var intervalToken = setInterval(function () {
                 var status = _interruptStatus();
                 if (status) {
-                    intervalToken();
+					clearInterval(intervalToken);
+					intervalToken = null;
                     fulfill(true);
                 }
                 if (Date.now() > start + timeout) {
-                    intervalToken();
+					clearInterval(intervalToken);
+					intervalToken = null;
                     fulfill(false);
                 }
             }, 5);
@@ -492,13 +494,13 @@ function CAP1XXX(i2c, gpio) {
         // Set repeat rate in milliseconds
         // Clamps to multiples of 35 from 35 to 560
         var repeatRate = _calcTouchRate(ms);
-        var iputConfig = _readByte(R_INPUT_CONFIG);
+        var inputConfig = _readByte(R_INPUT_CONFIG);
         inputConfig = (inputConfig & ~0xF) | repeatRate;
         _writeByte(R_INPUT_CONFIG, inputConfig);
     }
 
     function _calcTouchRate(ms) {
-        ms = min(max(ms, 0), 500);
+        ms = Math.min(Math.max(ms, 0), 500);
         var scale = parseInt(Math.round(ms / 35.0) * 35, 10) / 35;
         return parseInt(scale, 10);
     }
