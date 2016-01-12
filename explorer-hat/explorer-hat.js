@@ -1,9 +1,9 @@
 // NOTE - Remove relative paths when deploying for realz
-var RASPI = require('./raspi');
-var GPIO = require('./raspi-gpio');
-var I2C = require('./raspi-i2c').I2C;
-var BOARD = require('./raspi-board');
-var PIBLASTER = require('./pi-blaster.js');
+var RASPI = require('raspi');
+var GPIO = require('raspi-gpio');
+var I2C = require('raspi-i2c').I2C;
+var BOARD = require('raspi-board');
+var PIBLASTER = require('pi-blaster.js');
 
 var ADC = require('./ads1015');
 var CAP1208 = require('./cap1xxx');
